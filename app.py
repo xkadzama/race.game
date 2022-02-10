@@ -3,17 +3,18 @@ from random import randint, choice
 import time
 import pygame
 
-
+back_img = 'road.png'
 pygame.init()
 win_width = 800
 win_height = 700
 window = display.set_mode((win_width, win_height))
-back = transform.scale(image.load('road.png'), (win_width, win_height))
+back = transform.scale(image.load(back_img), (win_width, win_height))
 window.blit(back, (0, 0))
 
-car_speed = 10
-speed_road = 25
 
+car_speed = 15
+speed_road = 20
+bot_car_speed = 15
 
 class Car(sprite.Sprite):
     def __init__(self, img, width, height, x, y):
@@ -55,7 +56,7 @@ class TrafficCars(Car):
         self.tm = tm
 
     def update(self):
-        self.rect.y += 15
+        self.rect.y += bot_car_speed
         if self.rect.y > win_height:
             self.kill()
         
@@ -107,7 +108,7 @@ walls.add(wall_left)
 n_cars = ['bluecar.png', 'oceancar.png', 'yellowcar.png']
 # создание машин
 tr_cars = sprite.Group()
-car = CarDrive('maslcar.png', 55, 130, 440, 560)
+car = CarDrive('maslcar_night.png', 55, 130, 440, 560)
 for i in range(1):
     traffic_car = TrafficCars('yellowcar.png',50, 100, randint(170, 580), -100, randint(1, 10))
     tr_cars.add(traffic_car)
@@ -117,10 +118,27 @@ for i in range(1):
 shift = 0
 run = True
 start = time.time()
+score = 0
 finish = False
 
 while run:
+    # back_img = 'road.png'
     if not finish:
+        # увеличение скорости пропорционально очкам
+        if score >= 500: # 500
+            speed_road = 25
+        if score >= 1000: # 1000
+            speed_road = 30
+        if score >= 1500: # 1500
+            speed_road = 35
+            bot_car_speed = 20
+        if score >= 2000: # 2000
+            speed_road = 50
+            bot_car_speed = 22.5
+        if score >= 5000:
+            speed_road = 65
+            bot_car_speed = 28.5
+            
         # движение дороги
         shift += speed_road
         local_shift = shift % win_height
@@ -134,14 +152,22 @@ while run:
         tr_cars.draw(window)
         walls.draw(window)
         tr_cars.update()
-
+        
         # надпись таймера
         timer = time.time() - start
-        text = pygame.font.SysFont('verdana', 26).render('ВРЕМЯ:' + str(int(timer)), True, (255, 255, 0))
+        text = pygame.font.SysFont('verdana', 26).render('ВРЕМЯ: ' + str(int(timer)), True, (255, 255, 0))
         window.blit(text, (30, 20))
 
+        score += 0.5
+        text = pygame.font.SysFont('verdana', 26).render('СЧЕТ: ' + str(int(score)), True, (255, 255, 0))
+        window.blit(text, (600, 20))
+
+
+        if timer >= 60:
+            back_img = 'road_night1.png'
         
-       
+        back = transform.scale(image.load(back_img), (win_width, win_height))
+
         # при отсутствии машин в группе благодаря kill() мы воссоздаем их заново
         if not tr_cars:
             count_cars = 5
@@ -155,11 +181,17 @@ while run:
             # если функция возращает нам True, то мы удаляем машину из группы
             tr_cars_list = list(tr_cars.sprites())
             for j in range(len(tr_cars_list) - 1):
-                print(tr_cars_list[j].collidelist(tr_cars_list[j+1]))
+                # print(tr_cars_list[j].collidelist(tr_cars_list[j+1]))
                 if tr_cars_list[j].collidelist(tr_cars_list[j+1]):
                     tr_cars.remove(tr_cars.sprites()[j])
-                    print('*DEL*')
-            print(tr_cars_list)
+                    # print('*DEL1*')
+
+            # for d in range(len(tr_cars_list), 1):
+            #     # print(tr_cars_list[d].collidelist(tr_cars_list[d+1]))
+            #     if tr_cars_list[d].collidelist(tr_cars_list[d+1]):
+            #         tr_cars.remove(tr_cars.sprites()[d])
+            #         # print('*DEL2*')
+            # print(tr_cars_list)
 
                 
         #     print(sprite.spritecollide(tr_cars.sprites()[i]), tr_cars.sprites()[i+1])
@@ -172,7 +204,6 @@ while run:
         # завершение игры при столкновении
         if sprite.spritecollide(car, tr_cars, False) or sprite.spritecollide(car, walls, False):
             finish = True
-    
             window.blit(transform.scale(image.load('gameover.png'), (win_width, win_height)), (0, 0))
 
         
