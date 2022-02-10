@@ -42,9 +42,9 @@ class CarDrive(Car):
             self.rect.x += car_speed
         if pressed_keys[K_LEFT] and not pressed_keys[K_UP] and not pressed_keys[K_DOWN]:
             self.rect.x -= car_speed
-        if pressed_keys[K_UP] :
+        if pressed_keys[K_UP] and self.rect.y > 0:
             self.rect.y -= car_speed
-        if pressed_keys[K_DOWN]:
+        if pressed_keys[K_DOWN] and self.rect.y <= 555:
             self.rect.y += car_speed
 
 
@@ -59,6 +59,21 @@ class TrafficCars(Car):
         if self.rect.y > win_height:
             self.kill()
         
+
+
+class Wall(pygame.sprite.Sprite):
+    def __init__(self, x=20, y=0, width=120, height=120):
+        pygame.sprite.Sprite.__init__(self)
+        # картинка - новый прямоугольник нужных размеров:
+        self.image = pygame.Surface([width, height], SRCALPHA, 32)
+        self.image = self.image.convert_alpha()
+        # self.image.fill(color)
+
+        # создаем свойство rect 
+        self.rect = self.image.get_rect()
+        self.rect.x = x 
+        self.rect.y = y
+
 
 
 
@@ -77,6 +92,16 @@ class TrafficCars(Car):
 
 
 # *от 170 до 580 расстояние дороги в x
+
+
+
+# группа и объекты стен
+walls = sprite.Group()
+wall_right = Wall(690, 0, 10, win_height)
+wall_left = Wall(110, 0, 10, win_height)
+walls.add(wall_right)
+walls.add(wall_left)
+
 
 
 n_cars = ['bluecar.png', 'oceancar.png', 'yellowcar.png']
@@ -107,6 +132,7 @@ while run:
         car.reset()
         car.update()
         tr_cars.draw(window)
+        walls.draw(window)
         tr_cars.update()
 
         # надпись таймера
@@ -144,7 +170,7 @@ while run:
         #     car_speed = 15
 
         # завершение игры при столкновении
-        if sprite.spritecollide(car, tr_cars, False):
+        if sprite.spritecollide(car, tr_cars, False) or sprite.spritecollide(car, walls, False):
             finish = True
     
             window.blit(transform.scale(image.load('gameover.png'), (win_width, win_height)), (0, 0))
