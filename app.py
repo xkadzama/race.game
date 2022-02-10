@@ -11,7 +11,6 @@ window = display.set_mode((win_width, win_height))
 back = transform.scale(image.load('road.png'), (win_width, win_height))
 window.blit(back, (0, 0))
 
-
 car_speed = 10
 speed_road = 25
 
@@ -30,8 +29,8 @@ class Car(sprite.Sprite):
         window.blit(self.image, (self.rect.x, self.rect.y))
 
 
-    def collidelist(self, gr):
-        return self.rect.collidelist(gr)
+    def collidelist(self, spr):
+        return self.rect.colliderect(spr.rect)
 
 
         
@@ -94,6 +93,7 @@ shift = 0
 run = True
 start = time.time()
 finish = False
+
 while run:
     if not finish:
         # движение дороги
@@ -122,45 +122,20 @@ while run:
             coor = []
             for i in range(count_cars):
                 x_car = randint(170, 580)
-                if x_car > 30 and x_car < 30 in coor or x_car - 30 not in coor:
-                    coor.append(x_car)
-                    traffic_car = TrafficCars(choice(n_cars), 50, 100, x_car, randint(-2000, -100), randint(1, 10))
-                    tr_cars.add(traffic_car)
-                    print(coor)
-                # else:
-                #     coor.append(x_car)
-                #     traffic_car = TrafficCars(choice(n_cars), 50, 100, x_car, randint(-2000, -100), randint(1, 10))
-                #     tr_cars.add(traffic_car)
-                #     print(coor)
+                traffic_car = TrafficCars(choice(n_cars), 50, 100, x_car, randint(-2000, -100), randint(1, 10))
+                tr_cars.add(traffic_car)
+                
+            # после пополнения tr_cars объектами машин, проверяем на спавн в одном и том же месте, 
+            # если функция возращает нам True, то мы удаляем машину из группы
+            tr_cars_list = list(tr_cars.sprites())
+            for j in range(len(tr_cars_list) - 1):
+                print(tr_cars_list[j].collidelist(tr_cars_list[j+1]))
+                if tr_cars_list[j].collidelist(tr_cars_list[j+1]):
+                    tr_cars.remove(tr_cars.sprites()[j])
+                    print('*DEL*')
+            print(tr_cars_list)
 
-
-            # print(tr_cars.sprites()[0])
-            # t = sprite.groupcollide(tr_cars, tr_cars, False, False)
-            # print(t)
-            
-            # sprite.spritecollide(tr_cars.sprite()[0], tr_cars.sprite()[1], True, False)
-            # for i in range(len(tr_cars.sprites()) - 1):
-            # # sprite.spritecollide()
-            #     print(sprite.spritecollide(tr_cars.sprites()[i]), tr_cars.sprites()[i+1], True, True) 
-            #     # print(tr_cars.sprites()[1]) 
-
-            
-        # при спавне на одном и том же месте, удаляем объект
-        # if len(tr_cars) >= 2:
-        #     for i in range(len(tr_cars.sprites()) - 2):
-        #         if tr_cars.sprites()[i].collidelist(tr_cars.sprites()[i+1]):
-        #             tr_cars.sprites()[i].kill()
-        #             print('DELETE')
-
-        # if len(tr_cars) >= 2:
-        #     for i in range(len(tr_cars.sprites()) - 2):
-        #         if tr_cars.sprites()[i].collidelist(tr_cars):
-        #             tr_cars.sprites()[i].kill()
-        #             print('DELETE')
-           
-                # print(tr_cars)
-        # for i in range(len(tr_cars.sprites()) - 1):
-        #     # sprite.spritecollide()
+                
         #     print(sprite.spritecollide(tr_cars.sprites()[i]), tr_cars.sprites()[i+1])
 
         # увеличение скорости
