@@ -108,7 +108,7 @@ walls.add(wall_left)
 n_cars = ['bluecar.png', 'oceancar.png', 'yellowcar.png']
 # создание машин
 tr_cars = sprite.Group()
-car = CarDrive('maslcar_night.png', 55, 130, 440, 560)
+car = CarDrive('maslcar_red.png', 55, 130, 440, 560)
 for i in range(1):
     traffic_car = TrafficCars('yellowcar.png',50, 100, randint(170, 580), -100, randint(1, 10))
     tr_cars.add(traffic_car)
